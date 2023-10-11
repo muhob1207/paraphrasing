@@ -25,8 +25,10 @@ Further details and explanation can be found in the code.
 
 # Guide
 
-1)Download the folder called "suggestions" from this repository\n
-2)Navigate to the "suggestions" folder through the terminal. When you type "ls", you should see the file "manage.py" there.\n
+1)Download the folder called "suggestions" from this repository
+
+2)Navigate to the "suggestions" folder through the terminal. When you type "ls", you should see the file "manage.py" there.
+
 3)Run the command "python manage.py runserver". This will start your localhost. Open the localhost through your browser. At the home page you will be able to find the main UI, where the user can enter text and send it for analysis in the backend. To add phrases, navigate to 'Phrases list'.
 
 
