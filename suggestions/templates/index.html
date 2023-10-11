@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Phrases</title>
+
+
+
+    <style>
+
+body {
+        font-family: Arial, sans-serif;
+    }
+
+    a {
+        text-decoration: none;
+        color: #0077cc;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-top: 20px;
+    }
+
+    textarea {
+        width: 90%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        background-color: #0077cc;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        background-color: #0055aa;
+    }
+
+    #tooltip {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 1;
+}
+
+span.highlight{
+  font-weight: bold;
+  color: red;
+}
+
+
+
+      </style>
+
+</head>
+<body>
+
+    <a href="{% url 'phrases' %}">Phrases list</a>
+
+
+    <h1>Please upload your text here</h1>
+    <textarea name="text" id="text" cols="30" rows="10"></textarea>
+    <div id="loading" style="display: none;">Loading</div>
+    <div id="text-display"></div>
+
+    <div id="tooltip">
+      <span id="score"></span>
+      <span id="phrase"></span>
+    </div>
+
+    <button type="button" id="get-suggestions-button">get suggestions</button>
+
+
+
+    <script>
+
+      const getSuggestionsButton = document.getElementById('get-suggestions-button');
+
+      
+
+      getSuggestionsButton.addEventListener('click', function () {
+
+            const text = document.getElementById('text').value;
+            const textDisplay = document.getElementById('text-display');
+            const loading = document.getElementById('loading');
+            textDisplay.innerHTML = text;
+            textDisplay.style.display = 'none';
+            loading.style.display = 'block';
+
+
+            const dataForm = new FormData();
+            dataForm.append('text', text);
+
+            getSuggestionsButton.style.display = 'none';
+          
+            fetch('/return_suggestions/', {
+                method: 'POST',
+                headers: {
+                },
+                body: dataForm
+                })
+                .then(response => response.json())
+                .then(data => {
+                  
+                  loading.style.display = 'none';
+                  textDisplay.style.display = 'block';
+                  getSuggestionsButton.style.display = 'block';
+                  
+
+                  const results = data.results;
+
+                  const tooltip = document.getElementById('tooltip');
+                  const scoreSpan = document.getElementById('score');
+                  const phraseSpan = document.getElementById('phrase');
+                  const wordsIndexesDict = {};
+
+                  results.forEach(result => {
+
+                    const word = result[1];
+                    const regex = new RegExp(word, 'g');
+                    textDisplay.innerHTML = textDisplay.innerHTML.replace(regex, `<span class="highlight">${word}</span>`);
+                    wordsIndexesDict[word] = results.indexOf(result);
+                  });
+
+                  const highlightSpans = textDisplay.querySelectorAll('.highlight');
+
+
+                  highlightSpans.forEach(span => {
+                    span.addEventListener('mouseover', (e) => {
+                      const index = wordsIndexesDict[span.textContent];
+                      
+                      scoreSpan.textContent = 'Similarity: ' + results[index][0];
+                      phraseSpan.textContent = 'Replacement: ' + results[index][2];
+                      tooltip.style.left = e.clientX + 'px';
+                      tooltip.style.top = e.clientY + 'px';
+                      tooltip.style.display = 'block';
+                    });
+
+                    span.addEventListener('mouseout', () => {
+                      tooltip.style.display = 'none';
+                    });
+                  });
+                    
+                });
+
+           
+      });
+
+
+
+
+
+
+      
+
+  </script>
+</body>
+</html>
